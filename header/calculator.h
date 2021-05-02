@@ -15,6 +15,13 @@ namespace pic {
         Calculator(){}
 
         void GetChar();
+        int GetNum();
+        void Init();
+        void MatchAndEat(char chr);
+        int Term();
+        int Add();
+        int Subtract();
+        int ArithmeticExpression();
     };
 }
 

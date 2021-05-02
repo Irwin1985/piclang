@@ -4,8 +4,9 @@
 
 int main() {
     pic::Calculator calc;
-    calc.expression = "1";
-    calc.GetChar();
-    std::cout << calc.Look << std::endl;
+    calc.expression = "1+9";
+    calc.Init();
+    std::cout << calc.ArithmeticExpression() << std::endl;
+
     return 0;
 }
