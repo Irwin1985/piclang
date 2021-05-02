@@ -1,6 +1,11 @@
+#include "header/calculator.h"
+
 #include <iostream>
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    pic::Calculator calc;
+    calc.expression = "1";
+    calc.GetChar();
+    std::cout << calc.Look << std::endl;
     return 0;
 }
