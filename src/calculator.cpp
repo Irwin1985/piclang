@@ -33,7 +33,18 @@ namespace pic {
     }
 
     int Calculator::Term() {
-        return GetNum();
+        int result = Factor();
+        while ( Look == '*' || Look == '/' ) {
+            switch (Look) {
+                case '*':
+                    result = result * Multiply();
+                    break;
+                case '/':
+                    result = result / Divide();
+                    break;
+            }
+        }
+        return result;
     }
 
     int Calculator::Add() {
@@ -48,17 +59,40 @@ namespace pic {
 
     int Calculator::ArithmeticExpression() {
         int result = Term();
-
-        switch (Look) {
-            case '+':
-                result = result + Add();
-                break;
-            case '-':
-                result = result - Subtract();
-                break;
+        while ( Look == '+' || Look == '-' ) {
+            switch (Look) {
+                case '+':
+                    result = result + Add();
+                    break;
+                case '-':
+                    result = result - Subtract();
+                    break;
+            }
         }
 
         return result;
+    }
+
+    int Calculator::Factor() {
+        int result = 0;
+        if (Look == '(') {
+            MatchAndEat('(');
+            result = ArithmeticExpression();
+            MatchAndEat(')');
+        } else {
+            result = GetNum();
+        }
+        return result;
+    }
+
+    int Calculator::Multiply() {
+        MatchAndEat('*');
+        return Factor();
+    }
+
+    int Calculator::Divide() {
+        MatchAndEat('/');
+        return Factor();
     }
 }
 

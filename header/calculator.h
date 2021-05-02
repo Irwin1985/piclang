@@ -22,6 +22,9 @@ namespace pic {
         int Add();
         int Subtract();
         int ArithmeticExpression();
+        int Factor();
+        int Multiply();
+        int Divide();
     };
 }
 
