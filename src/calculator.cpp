@@ -22,6 +22,10 @@ namespace pic {
         return GetToken(0);
     }
 
+    Token Calculator::NextToken() {
+        return GetToken(1);
+    }
+
     void Calculator::EatToken(int offset) {
         currentTokenPosition += offset;
     }
@@ -73,11 +77,15 @@ namespace pic {
     int Calculator::Term() {
         int result = Factor();
         while ( CurrentToken().type == MULTIPLY || CurrentToken().type == DIVIDE ) {
-            if (CurrentToken().type == MULTIPLY) {
-                result = result * Multiply();
-            }
-            else if ( CurrentToken().type == DIVIDE) {
-                result = result / Divide();
+            switch (CurrentToken().type) {
+                case MULTIPLY:
+                    result *= Multiply();
+                    break;
+                case DIVIDE:
+                    result /= Divide();
+                    break;
+                default:
+                    break;
             }
         }
         return result;
@@ -86,13 +94,97 @@ namespace pic {
     int Calculator::ArithmeticExpression() {
         int result = Term();
         while ( CurrentToken().type == ADD || CurrentToken().type == SUBTRACT ) {
-            if (CurrentToken().type == ADD) {
-                result = result + Add();
-            }
-            else if (CurrentToken().type == SUBTRACT) {
-                result = result - Subtract();
+            switch (CurrentToken().type) {
+                case ADD:
+                    result += Add();
+                    break;
+                case SUBTRACT:
+                    result -= Subtract();
+                    break;
+                default:
+                    break;
             }
         }
         return result;
+    }
+
+    bool Calculator::Less(int leftExpressionResult) {
+        MatchAndEat(LESS);
+        return leftExpressionResult < ArithmeticExpression();
+    }
+
+    bool Calculator::LessEqual(int leftExpressionResult) {
+        MatchAndEat(LESSEQUAL);
+        return leftExpressionResult <= ArithmeticExpression();
+    }
+
+    bool Calculator::Equal(int leftExpressionResult) {
+        MatchAndEat(EQUAL);
+        return leftExpressionResult == ArithmeticExpression();
+    }
+
+    bool Calculator::Greater(int leftExpressionResult) {
+        MatchAndEat(GREATER);
+        return leftExpressionResult > ArithmeticExpression();
+    }
+
+    bool Calculator::GreaterEqual(int leftExpressionResult) {
+        MatchAndEat(GREATEREQUAL);
+        return leftExpressionResult >= ArithmeticExpression();
+    }
+
+    bool Calculator::Relation() {
+        int leftExpresionResult = ArithmeticExpression();
+        bool result = false;
+        TokenType type = CurrentToken().type;
+        if ( type == EQUAL || type == LESS || type == LESSEQUAL || type == GREATER || type == GREATEREQUAL) {
+            switch (CurrentToken().type) {
+                case EQUAL:
+                    result = Equal(leftExpresionResult);
+                    break;
+                case LESS:
+                    result = Less(leftExpresionResult);
+                    break;
+                case LESSEQUAL:
+                    result = LessEqual(leftExpresionResult);
+                    break;
+                case GREATER:
+                    result = Greater(leftExpresionResult);
+                    break;
+                case GREATEREQUAL:
+                    result = GreaterEqual(leftExpresionResult);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return result;
+    }
+
+    bool Calculator::BooleanFactor() {
+        return Relation();
+    }
+
+    bool Calculator::BooleanTerm() {
+        bool result = BooleanFactor();
+
+        while (CurrentToken().type == AND) {
+            MatchAndEat(AND);
+            result = result && BooleanFactor();
+        }
+        return result;
+    }
+
+    bool Calculator::BooleanExpression() {
+        bool result = BooleanTerm();
+        while (CurrentToken().type == OR) {
+            MatchAndEat(OR);
+            result = result || BooleanTerm();
+        }
+        return result;
+    }
+
+    bool Calculator::Expression() {
+        return BooleanExpression();
     }
 }

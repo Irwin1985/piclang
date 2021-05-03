@@ -19,7 +19,18 @@ namespace pic {
         MULTIPLY,
         DIVIDE,
         LEFT_PAREN,
-        RIGHT_PAREN
+        RIGHT_PAREN,
+        ASSIGNMENT,
+        // Relational Operators
+        LESS,
+        GREATER,
+        EQUAL,
+        NOTEQUAL,
+        LESSEQUAL,
+        GREATEREQUAL,
+        NOT,
+        OR,
+        AND,
     };
 
     class Token {

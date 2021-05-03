@@ -11,23 +11,33 @@
 namespace pic {
     class Calculator {
     public:
-        std::list<Token> tokens;
         int currentTokenPosition = 0;
-        char Look = '\0';
+        std::list<Token> tokens;
+
         Calculator(){}
 
+        Token GetToken(int offset);
+        Token CurrentToken();
+        Token NextToken();
+        void EatToken(int offset);
         Token MatchAndEat(TokenType type);
-        int Term();
-        int Add();
-        int Subtract();
-        int ArithmeticExpression();
-        int Factor();
         int Multiply();
         int Divide();
-
-        Token CurrentToken();
-        Token GetToken(int offset);
-        void EatToken(int offset);
+        int Add();
+        int Subtract();
+        int Term();
+        int Factor();
+        int ArithmeticExpression();
+        bool Relation();
+        bool BooleanFactor();
+        bool BooleanTerm();
+        bool BooleanExpression();
+        bool Expression();
+        bool Equal(int leftExpressionResult);
+        bool Less(int leftExpressionResult);
+        bool LessEqual(int leftExpressionResult);
+        bool Greater(int leftExpressionResult);
+        bool GreaterEqual(int leftExpressionResult);
     };
 }
 

@@ -45,6 +45,24 @@ namespace pic {
                 return "LEFT_PAREN";
             case RIGHT_PAREN:
                 return "RIGHT_PAREN";
+            case LESS:
+                return "LESS";
+            case LESSEQUAL:
+                return "LESS_EQUAL";
+            case GREATER:
+                return "GREATER";
+            case GREATEREQUAL:
+                return "GREATER_EQUAL";
+            case EQUAL:
+                return "EQUAL";
+            case NOTEQUAL:
+                return "NOT_EQUAL";
+            case NOT:
+                return "NOT";
+            case AND:
+                return "AND";
+            case OR:
+                return "OR";
             default:
                 return "UNKNOWN";
         }

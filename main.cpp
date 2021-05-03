@@ -5,7 +5,7 @@
 #include "header/util.h"
 
 int main() {
-    std::string expression = "(600+3+2)*5";
+    std::string expression = "5<7";
     expression += " ";
 
     // create the Calculator instance
@@ -18,7 +18,8 @@ int main() {
     calc.tokens = pic::Tokenizer::Tokenize(expression);
     pic::PrettyPrint(calc.tokens);
     std::cout << "---------------------\n";
-    std::cout << "Expression result: " << calc.ArithmeticExpression() << std::endl;
+
+    std::cout << "Expression result: " << calc.Expression() << std::endl;
 
     return 0;
 }

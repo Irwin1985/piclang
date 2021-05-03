@@ -13,13 +13,14 @@ namespace pic {
         TS_DEFAULT,
         TS_OPERATOR,
         TS_NUMBER,
-        TS_STRING
     };
 
     class Tokenizer {
     public:
         static bool IsOp(char chr);
-        static TokenType FindOpType(char chr);
+        static bool IsParen(char chr);
+        static TokenType FindParenType(char chr);
+        static TokenType FindOpType(char firstOperator, char nextChar);
         static std::list<Token> Tokenize(std::string source);
     };
 }
