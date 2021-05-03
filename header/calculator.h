@@ -11,6 +11,7 @@ namespace pic {
     public:
         std::string expression = "";
         int currentCharPosition = 0;
+        int currentTokenPosition = 0;
         char Look = '\0';
         Calculator(){}
 
@@ -25,6 +26,7 @@ namespace pic {
         int Factor();
         int Multiply();
         int Divide();
+        bool IsDigit(char chr);
     };
 }
 

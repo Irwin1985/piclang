@@ -1,14 +1,21 @@
-#include "header/calculator.h"
+#include "header/tokenizer.h"
 
 #include <iostream>
+#include "header/prettyprint.h"
 
 int main() {
-    pic::Calculator calc;
-    calc.expression = "(9*3-1+8)*5-7";
-    std::cout << "Expression: " << calc.expression << std::endl;
-    calc.Init();
-    int result = calc.ArithmeticExpression();
-    std::cout << "Calculation Result: " << result << std::endl;
+    std::string expression = "219+341+19";
+    expression += " ";
+
+    pic::Tokenizer tokenizer;
+    std::list<pic::Token> tokens = tokenizer.Tokenize(expression);
+    std::cout << "---------------------\n";
+    pic::PrettyPrint(tokens);
+
+
+//    for (pic::Token token : tokens) {
+//        std::cout << token.toString() << "\n";
+//    }
 
     return 0;
 }

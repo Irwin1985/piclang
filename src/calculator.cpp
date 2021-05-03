@@ -6,6 +6,9 @@
 #include <iostream>
 
 namespace pic {
+    bool Calculator::IsDigit(char chr) {
+        return '0' <= chr && chr <= '9';
+    }
     void Calculator::GetChar() {
         if (currentCharPosition < expression.size()){
             Look = expression[currentCharPosition];
@@ -14,8 +17,17 @@ namespace pic {
     }
 
     int Calculator::GetNum() {
-        int number = Look - '0'; // convert char to int.
-        GetChar();
+        int number = 0;
+        std::string tempStr = "";
+        if (!IsDigit(Look)) {
+            std::cout << "Error: Numbers expected. " << std::endl;
+            exit(1);
+        }
+        while (IsDigit(Look)) {
+            tempStr = tempStr + Look;
+            GetChar();
+        }
+        number = std::stoi(tempStr);
         return number;
     }
 
