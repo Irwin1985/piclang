@@ -5,20 +5,18 @@
 #ifndef PICLANG_CALCULATOR_H
 #define PICLANG_CALCULATOR_H
 #include <string>
+#include "token.h"
+#include <list>
 
 namespace pic {
     class Calculator {
     public:
-        std::string expression = "";
-        int currentCharPosition = 0;
+        std::list<Token> tokens;
         int currentTokenPosition = 0;
         char Look = '\0';
         Calculator(){}
 
-        void GetChar();
-        int GetNum();
-        void Init();
-        void MatchAndEat(char chr);
+        Token MatchAndEat(std::string type);
         int Term();
         int Add();
         int Subtract();
@@ -26,7 +24,10 @@ namespace pic {
         int Factor();
         int Multiply();
         int Divide();
-        bool IsDigit(char chr);
+
+        Token CurrentToken();
+        Token GetToken(int offset);
+        void EatToken(int offset);
     };
 }
 

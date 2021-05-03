@@ -6,105 +6,93 @@
 #include <iostream>
 
 namespace pic {
-    bool Calculator::IsDigit(char chr) {
-        return '0' <= chr && chr <= '9';
-    }
-    void Calculator::GetChar() {
-        if (currentCharPosition < expression.size()){
-            Look = expression[currentCharPosition];
+
+    Token Calculator::GetToken(int offset) {
+        if (currentTokenPosition + offset >= tokens.size()) {
+            return Token("", "NO_TOKEN");
         }
-        currentCharPosition += 1;
+        // get an element from list
+        auto l_front = tokens.begin(); // go top of the list
+        std::advance(l_front, currentTokenPosition + offset); // call advance function.
+
+        return *l_front; // indirect the pointer
     }
 
-    int Calculator::GetNum() {
-        int number = 0;
-        std::string tempStr = "";
-        if (!IsDigit(Look)) {
-            std::cout << "Error: Numbers expected. " << std::endl;
-            exit(1);
-        }
-        while (IsDigit(Look)) {
-            tempStr = tempStr + Look;
-            GetChar();
-        }
-        number = std::stoi(tempStr);
-        return number;
+    Token Calculator::CurrentToken() {
+        return GetToken(0);
     }
 
-    void Calculator::Init() {
-        GetChar();
+    void Calculator::EatToken(int offset) {
+        currentTokenPosition += offset;
     }
 
-    void Calculator::MatchAndEat(char chr) {
-        if (Look == chr) {
-            GetChar();
-        } else{
-            std::cout << "Error: Unexpected character.";
+    Token Calculator::MatchAndEat(std::string type) {
+        Token token = CurrentToken();
+        if (CurrentToken().type != type) {
+            std::cout << "Saw " << token.type << " but " << type << " expected.\n";
             std::exit(1);
         }
-    }
-
-    int Calculator::Term() {
-        int result = Factor();
-        while ( Look == '*' || Look == '/' ) {
-            switch (Look) {
-                case '*':
-                    result = result * Multiply();
-                    break;
-                case '/':
-                    result = result / Divide();
-                    break;
-            }
-        }
-        return result;
-    }
-
-    int Calculator::Add() {
-        MatchAndEat('+');
-        return Term();
-    }
-
-    int Calculator::Subtract() {
-        MatchAndEat('-');
-        return Term();
-    }
-
-    int Calculator::ArithmeticExpression() {
-        int result = Term();
-        while ( Look == '+' || Look == '-' ) {
-            switch (Look) {
-                case '+':
-                    result = result + Add();
-                    break;
-                case '-':
-                    result = result - Subtract();
-                    break;
-            }
-        }
-
-        return result;
-    }
-
-    int Calculator::Factor() {
-        int result = 0;
-        if (Look == '(') {
-            MatchAndEat('(');
-            result = ArithmeticExpression();
-            MatchAndEat(')');
-        } else {
-            result = GetNum();
-        }
-        return result;
+        EatToken(1); // move the currentTokenPosition forward
+        return token; // return the just eaten token.
     }
 
     int Calculator::Multiply() {
-        MatchAndEat('*');
+        MatchAndEat("MULTIPLY");
         return Factor();
     }
 
     int Calculator::Divide() {
-        MatchAndEat('/');
+        MatchAndEat("DIVIDE");
         return Factor();
     }
-}
 
+    int Calculator::Add() {
+        MatchAndEat("ADD");
+        return Term();
+    }
+
+    int Calculator::Subtract() {
+        MatchAndEat("SUBTRACT");
+        return Term();
+    }
+
+    int Calculator::Factor() {
+        int result = 0;
+        if (CurrentToken().type == "LEFT_PAREN") {
+            MatchAndEat("LEFT_PAREN");
+            result = ArithmeticExpression();
+            MatchAndEat("RIGHT_PAREN");
+        }
+        else if (CurrentToken().type == "NUMBER") {
+            result = std::stoi(CurrentToken().text);
+            MatchAndEat("NUMBER");
+        }
+        return result;
+    }
+
+    int Calculator::Term() {
+        int result = Factor();
+        while ( CurrentToken().type == "MULTIPLY" || CurrentToken().type == "DIVIDE" ) {
+            if (CurrentToken().type == "MULTIPLY") {
+                result = result * Multiply();
+            }
+            else if ( CurrentToken().type == "DIVIDE") {
+                result = result / Divide();
+            }
+        }
+        return result;
+    }
+
+    int Calculator::ArithmeticExpression() {
+        int result = Term();
+        while ( CurrentToken().type == "ADD" || CurrentToken().type == "SUBTRACT" ) {
+            if (CurrentToken().type == "ADD") {
+                result = result + Add();
+            }
+            else if (CurrentToken().type == "SUBTRACT") {
+                result = result - Subtract();
+            }
+        }
+        return result;
+    }
+}
