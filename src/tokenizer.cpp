@@ -5,41 +5,31 @@
 #include "../header/tokenizer.h"
 
 namespace pic {
-    void Tokenizer::Init() {
-        GetChar();
-    }
-
-    void Tokenizer::GetChar() {
-        if (currentCharPosition < expression.size()) {
-            Look = expression[currentCharPosition];
-        }
-        currentCharPosition += 1;
-    }
 
     bool Tokenizer::IsOp(char chr) {
         return chr == '+' || chr == '-' || chr == '*' || chr == '/' || chr == '(' || chr == ')';
     }
 
-    std::string Tokenizer::FindOpType(char chr) {
-        std::string type = "UNKNOWN";
+    TokenType Tokenizer::FindOpType(char chr) {
+        TokenType type = UNKNOWN;
         switch (chr) {
             case '+':
-                type = "ADD";
+                type = ADD;
                 break;
             case '-':
-                type = "SUBTRACT";
+                type = SUBTRACT;
                 break;
             case '*':
-                type = "MULTIPLY";
+                type = MULTIPLY;
                 break;
             case '/':
-                type = "DIVIDE";
+                type = DIVIDE;
                 break;
             case '(':
-                type = "LEFT_PAREN";
+                type = LEFT_PAREN;
                 break;
             case ')':
-                type = "RIGHT_PAREN";
+                type = RIGHT_PAREN;
                 break;
         }
         return type;
@@ -49,28 +39,28 @@ namespace pic {
         std::list<Token> tokens;
         std::string token;
         token = "";
-        std::string state = "DEFAULT";
+        TokenState state = TS_DEFAULT;
 
         for (int index = 0; index < source.size(); index++) {
             char chr = source[index];
 
-            if (state == "DEFAULT") {
-                std::string opType = FindOpType(chr);
+            if (state == TS_DEFAULT) {
+                TokenType opType = FindOpType(chr);
                 if (IsOp(chr)) {
                     tokens.emplace_back(Token(chr, opType));
                 }
                 else if (isdigit(chr)) {
                     token += chr;
-                    state = "NUMBER";
+                    state = TS_NUMBER;
                 }
             }
-            else if (state == "NUMBER") {
+            else if (state == TS_NUMBER) {
                 if (isdigit(chr)) {
                     token += chr;
                 } else {
-                  tokens.emplace_back(token, "NUMBER");
+                  tokens.emplace_back(token, NUMBER);
                   token = "";
-                  state = "DEFAULT";
+                  state = TS_DEFAULT;
                   index -= 1; // push back the character.
                 }
             }

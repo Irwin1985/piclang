@@ -9,7 +9,7 @@ namespace pic {
 
     Token Calculator::GetToken(int offset) {
         if (currentTokenPosition + offset >= tokens.size()) {
-            return Token("", "NO_TOKEN");
+            return Token("", END);
         }
         // get an element from list
         auto l_front = tokens.begin(); // go top of the list
@@ -26,7 +26,7 @@ namespace pic {
         currentTokenPosition += offset;
     }
 
-    Token Calculator::MatchAndEat(std::string type) {
+    Token Calculator::MatchAndEat(TokenType type) {
         Token token = CurrentToken();
         if (CurrentToken().type != type) {
             std::cout << "Saw " << token.type << " but " << type << " expected.\n";
@@ -37,46 +37,46 @@ namespace pic {
     }
 
     int Calculator::Multiply() {
-        MatchAndEat("MULTIPLY");
+        MatchAndEat(MULTIPLY);
         return Factor();
     }
 
     int Calculator::Divide() {
-        MatchAndEat("DIVIDE");
+        MatchAndEat(DIVIDE);
         return Factor();
     }
 
     int Calculator::Add() {
-        MatchAndEat("ADD");
+        MatchAndEat(ADD);
         return Term();
     }
 
     int Calculator::Subtract() {
-        MatchAndEat("SUBTRACT");
+        MatchAndEat(SUBTRACT);
         return Term();
     }
 
     int Calculator::Factor() {
         int result = 0;
-        if (CurrentToken().type == "LEFT_PAREN") {
-            MatchAndEat("LEFT_PAREN");
+        if (CurrentToken().type == LEFT_PAREN) {
+            MatchAndEat(LEFT_PAREN);
             result = ArithmeticExpression();
-            MatchAndEat("RIGHT_PAREN");
+            MatchAndEat(RIGHT_PAREN);
         }
-        else if (CurrentToken().type == "NUMBER") {
+        else if (CurrentToken().type == NUMBER) {
             result = std::stoi(CurrentToken().text);
-            MatchAndEat("NUMBER");
+            MatchAndEat(NUMBER);
         }
         return result;
     }
 
     int Calculator::Term() {
         int result = Factor();
-        while ( CurrentToken().type == "MULTIPLY" || CurrentToken().type == "DIVIDE" ) {
-            if (CurrentToken().type == "MULTIPLY") {
+        while ( CurrentToken().type == MULTIPLY || CurrentToken().type == DIVIDE ) {
+            if (CurrentToken().type == MULTIPLY) {
                 result = result * Multiply();
             }
-            else if ( CurrentToken().type == "DIVIDE") {
+            else if ( CurrentToken().type == DIVIDE) {
                 result = result / Divide();
             }
         }
@@ -85,11 +85,11 @@ namespace pic {
 
     int Calculator::ArithmeticExpression() {
         int result = Term();
-        while ( CurrentToken().type == "ADD" || CurrentToken().type == "SUBTRACT" ) {
-            if (CurrentToken().type == "ADD") {
+        while ( CurrentToken().type == ADD || CurrentToken().type == SUBTRACT ) {
+            if (CurrentToken().type == ADD) {
                 result = result + Add();
             }
-            else if (CurrentToken().type == "SUBTRACT") {
+            else if (CurrentToken().type == SUBTRACT) {
                 result = result - Subtract();
             }
         }

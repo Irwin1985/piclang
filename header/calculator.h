@@ -16,7 +16,7 @@ namespace pic {
         char Look = '\0';
         Calculator(){}
 
-        Token MatchAndEat(std::string type);
+        Token MatchAndEat(TokenType type);
         int Term();
         int Add();
         int Subtract();

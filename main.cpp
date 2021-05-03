@@ -2,10 +2,10 @@
 #include "header/calculator.h"
 
 #include <iostream>
-#include "header/prettyprint.h"
+#include "header/util.h"
 
 int main() {
-    std::string expression = "((853+92*5)*10-20/2+771)";
+    std::string expression = "(600+3+2)*5";
     expression += " ";
 
     // create the Calculator instance
@@ -15,7 +15,7 @@ int main() {
 
     std::cout << "Expression: " << expression << std::endl;
     std::cout << "---------------------\n";
-    calc.tokens = tokenizer.Tokenize(expression);
+    calc.tokens = pic::Tokenizer::Tokenize(expression);
     pic::PrettyPrint(calc.tokens);
     std::cout << "---------------------\n";
     std::cout << "Expression result: " << calc.ArithmeticExpression() << std::endl;

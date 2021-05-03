@@ -3,10 +3,11 @@
 //
 #include <string>
 #include "../header/token.h"
+#include "../header/util.h"
 
 namespace pic {
     std::string Token::toString() {
-        return "Type: " + type + " Text: " + text;
+        return "Type: " + GetType(type) + " Text: " + text;
     }
 }
 

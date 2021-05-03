@@ -7,18 +7,33 @@
 #include <string>
 
 namespace pic {
+
+    enum TokenType {
+        NUMBER,
+        NEWLINE,
+        OPERATOR,
+        END,
+        UNKNOWN,
+        ADD,
+        SUBTRACT,
+        MULTIPLY,
+        DIVIDE,
+        LEFT_PAREN,
+        RIGHT_PAREN
+    };
+
     class Token {
     public:
         std::string text;
-        std::string type;
+        TokenType type;
 
         Token() {};
 
-        Token(std::string text, std::string type) {
+        Token(std::string text, TokenType type) {
             this->text = text;
             this->type = type;
         }
-        Token(char text, std::string type) {
+        Token(char text, TokenType type) {
             this->text = std::string(1, text);
             this->type = type;
         }

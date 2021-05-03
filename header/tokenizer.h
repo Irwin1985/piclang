@@ -8,17 +8,19 @@
 #include "token.h"
 
 namespace pic {
+
+    enum TokenState {
+        TS_DEFAULT,
+        TS_OPERATOR,
+        TS_NUMBER,
+        TS_STRING
+    };
+
     class Tokenizer {
     public:
-        std::string expression = "";
-        int currentCharPosition = 0;
-        char Look;
-
-        void Init();
-        void GetChar();
-        bool IsOp(char chr);
-        std::string FindOpType(char chr);
-        std::list<Token> Tokenize(std::string source);
+        static bool IsOp(char chr);
+        static TokenType FindOpType(char chr);
+        static std::list<Token> Tokenize(std::string source);
     };
 }
 

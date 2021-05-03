@@ -7,7 +7,8 @@
 #define PICLANG_PRETTYPRINT_H
 
 namespace pic {
-    void PrettyPrint(std::list<Token> tokens);
+    void PrettyPrint(const std::list<Token> &tokens);
+    std::string GetType(TokenType type);
 }
 
 #endif //PICLANG_PRETTYPRINT_H
