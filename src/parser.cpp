@@ -2,12 +2,16 @@
 // Created by irwin on 02/05/2021.
 //
 
-#include "../header/calculator.h"
+#include "../header/parser.h"
 #include <iostream>
 
 namespace pic {
 
-    Token Calculator::GetToken(int offset) {
+    Node* Parser::Parse() {
+        return Expression();
+    }
+
+    Token Parser::GetToken(int offset) {
         if (currentTokenPosition + offset >= tokens.size()) {
             return Token("", END);
         }
@@ -18,19 +22,15 @@ namespace pic {
         return *l_front; // indirect the pointer
     }
 
-    Token Calculator::CurrentToken() {
+    Token Parser::CurrentToken() {
         return GetToken(0);
     }
 
-    Token Calculator::NextToken() {
-        return GetToken(1);
-    }
-
-    void Calculator::EatToken(int offset) {
+    void Parser::EatToken(int offset) {
         currentTokenPosition += offset;
     }
 
-    Token Calculator::MatchAndEat(TokenType type) {
+    Token Parser::MatchAndEat(TokenType type) {
         Token token = CurrentToken();
         if (CurrentToken().type != type) {
             std::cout << "Saw " << token.type << " but " << type << " expected.\n";
@@ -40,102 +40,68 @@ namespace pic {
         return token; // return the just eaten token.
     }
 
-    int Calculator::Multiply() {
-        MatchAndEat(MULTIPLY);
-        return Factor();
-    }
-
-    int Calculator::Divide() {
-        MatchAndEat(DIVIDE);
-        return Factor();
-    }
-
-    int Calculator::Add() {
-        MatchAndEat(ADD);
-        return Term();
-    }
-
-    int Calculator::Subtract() {
-        MatchAndEat(SUBTRACT);
-        return Term();
-    }
-
-    int Calculator::Factor() {
-        int result = 0;
+    Node* Parser::Factor() {
+        Node* result = nullptr;
         if (CurrentToken().type == LEFT_PAREN) {
             MatchAndEat(LEFT_PAREN);
             result = ArithmeticExpression();
             MatchAndEat(RIGHT_PAREN);
         }
         else if (CurrentToken().type == NUMBER) {
-            result = std::stoi(CurrentToken().text);
+            result = new NumberNode(std::stod(CurrentToken().text));
             MatchAndEat(NUMBER);
         }
         return result;
     }
 
-    int Calculator::Term() {
-        int result = Factor();
+    Node* Parser::Term() {
+        Node* result = Factor();
         while ( CurrentToken().type == MULTIPLY || CurrentToken().type == DIVIDE ) {
-            switch (CurrentToken().type) {
-                case MULTIPLY:
-                    result *= Multiply();
-                    break;
-                case DIVIDE:
-                    result /= Divide();
-                    break;
-                default:
-                    break;
-            }
+            TokenType type = CurrentToken().type;
+            MatchAndEat(type);
+            result = new BinOpNode(result, type, Factor());
         }
         return result;
     }
 
-    int Calculator::ArithmeticExpression() {
-        int result = Term();
+    Node* Parser::ArithmeticExpression() {
+        Node* result = Term();
         while ( CurrentToken().type == ADD || CurrentToken().type == SUBTRACT ) {
-            switch (CurrentToken().type) {
-                case ADD:
-                    result += Add();
-                    break;
-                case SUBTRACT:
-                    result -= Subtract();
-                    break;
-                default:
-                    break;
-            }
+            TokenType type = CurrentToken().type;
+            MatchAndEat(type);
+            result = new BinOpNode(result, type, Term());
         }
         return result;
     }
 
-    bool Calculator::Less(int leftExpressionResult) {
+    Node* Parser::Less(Node* leftExpressionResult) {
         MatchAndEat(LESS);
-        return leftExpressionResult < ArithmeticExpression();
+        return new BinOpNode(leftExpressionResult, LESS, ArithmeticExpression());
     }
 
-    bool Calculator::LessEqual(int leftExpressionResult) {
+    Node* Parser::LessEqual(Node* leftExpressionResult) {
         MatchAndEat(LESSEQUAL);
-        return leftExpressionResult <= ArithmeticExpression();
+        return new BinOpNode(leftExpressionResult, LESSEQUAL, ArithmeticExpression());
     }
 
-    bool Calculator::Equal(int leftExpressionResult) {
+    Node* Parser::Equal(Node* leftExpressionResult) {
         MatchAndEat(EQUAL);
-        return leftExpressionResult == ArithmeticExpression();
+        return new BinOpNode(leftExpressionResult, EQUAL, ArithmeticExpression());
     }
 
-    bool Calculator::Greater(int leftExpressionResult) {
+    Node* Parser::Greater(Node* leftExpressionResult) {
         MatchAndEat(GREATER);
-        return leftExpressionResult > ArithmeticExpression();
+        return new BinOpNode(leftExpressionResult, GREATER, ArithmeticExpression());
     }
 
-    bool Calculator::GreaterEqual(int leftExpressionResult) {
+    Node* Parser::GreaterEqual(Node* leftExpressionResult) {
         MatchAndEat(GREATEREQUAL);
-        return leftExpressionResult >= ArithmeticExpression();
+        return new BinOpNode(leftExpressionResult, GREATEREQUAL, ArithmeticExpression());
     }
 
-    bool Calculator::Relation() {
-        int leftExpresionResult = ArithmeticExpression();
-        bool result = false;
+    Node* Parser::Relation() {
+        Node* leftExpresionResult = ArithmeticExpression();
+        Node *result = nullptr;
         TokenType type = CurrentToken().type;
         if ( type == EQUAL || type == LESS || type == LESSEQUAL || type == GREATER || type == GREATEREQUAL) {
             switch (CurrentToken().type) {
@@ -158,33 +124,36 @@ namespace pic {
                     break;
             }
         }
+        if (result == nullptr) {
+            return leftExpresionResult;
+        }
         return result;
     }
 
-    bool Calculator::BooleanFactor() {
+    Node* Parser::BooleanFactor() {
         return Relation();
     }
 
-    bool Calculator::BooleanTerm() {
-        bool result = BooleanFactor();
+    Node* Parser::BooleanTerm() {
+        Node* result = BooleanFactor();
 
         while (CurrentToken().type == AND) {
             MatchAndEat(AND);
-            result = result && BooleanFactor();
+            result = new BinOpNode(result, AND, BooleanFactor());
         }
         return result;
     }
 
-    bool Calculator::BooleanExpression() {
-        bool result = BooleanTerm();
+    Node* Parser::BooleanExpression() {
+        Node* result = BooleanTerm();
         while (CurrentToken().type == OR) {
             MatchAndEat(OR);
-            result = result || BooleanTerm();
+            result = new BinOpNode(result, OR, BooleanTerm());
         }
         return result;
     }
 
-    bool Calculator::Expression() {
+    Node* Parser::Expression() {
         return BooleanExpression();
     }
 }
